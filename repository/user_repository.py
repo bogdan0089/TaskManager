@@ -10,6 +10,18 @@ class UserRepository:
         self.session = session
 
 
+    async def create_user(self, data: CreateUser) -> User:
+        user = User(
+            name=data.name,
+            email=data.email,
+            role=data.role            
+        )
+        self.session.add(user)
+        await self.session.flush()
+        await self.session.refresh(user)
+        return user
+
+
     async def get_user(self, user_id: int) -> User:
         user = await self.session.get(User, user_id)
         return user
@@ -41,7 +53,7 @@ class UserRepository:
     
 
     
-    async def get_task_user(self, user_id: int):
+    async def get_task_user(self, user_id: int) -> int:
         stmt = await self.session.execute(
             select(func.count(Task.id)).where(Task.user_id == user_id)
         )

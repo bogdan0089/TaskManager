@@ -11,17 +11,14 @@ class ServiceUser:
     @staticmethod
     async def create_user(data: CreateUser) -> User:
         async with UnitOfWork() as uow:
-            user = User(
-                name=data.name,
-                email=data.email,
-                role=data.role
-            )
-            uow.session.add(user)
+            user = await uow.user.create_user(data)
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
             return user
         
 
     @staticmethod
-    async def get_user(user_id: int):
+    async def get_user(user_id: int) -> User:
         async with UnitOfWork() as uow:
             user = await uow.user.get_user(user_id)
             if user is None:
@@ -30,7 +27,7 @@ class ServiceUser:
         
 
     @staticmethod
-    async def all_users():
+    async def all_users() -> list[User]:
         async with UnitOfWork() as uow:
             users = await uow.user.all_users()
             if not users:
@@ -39,7 +36,7 @@ class ServiceUser:
         
     
     @staticmethod
-    async def check_role_user(user_id: int, data: UserRole):
+    async def check_role_user(user_id: int, data: UserRole) -> User:
         async with UnitOfWork() as uow:
             user = await uow.user.get_user(user_id)
             if not user:
@@ -50,7 +47,7 @@ class ServiceUser:
             
                 
     @staticmethod
-    async def update_user(user_id: int, user: User, data: UserUpdate):
+    async def update_user(user_id: int, user: User, data: UserUpdate) -> User:
         async with UnitOfWork() as uow:
             user = await uow.user.get_user(user_id)
             if not user:
@@ -62,20 +59,18 @@ class ServiceUser:
         
 
     @staticmethod
-    async def delete_user(user_id: int):
+    async def delete_user(user_id: int) -> dict:
         async with UnitOfWork() as uow:
             user = await uow.user.get_user(user_id)
             if not user:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
             user = await uow.user.delete_user(user)
-            uow.commit()
             return {
-                "message": f"User deleted - {user.name} - {user.email} - {user.role}"
+                "message": "User delete."
             }
-            
 
     @staticmethod
-    async def user_tasks(user_id: int):
+    async def user_tasks(user_id: int) -> int:
         async with UnitOfWork() as uow:
             user = await uow.user.get_user(user_id)
             if not user:
