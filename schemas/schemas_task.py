@@ -9,14 +9,10 @@ class CreateTask(BaseModel):
 class ResponseTask(CreateTask):
     id: int
 
-
-
 class TaskUpdateStatus(BaseModel):
     title: str
     status: TaskStatus
     
-
-
 class TaskUpdate(BaseModel):
     title: str
     status: TaskStatus

@@ -12,10 +12,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(nullable=False)
     tasks: Mapped[List["Task"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), nullable=False)
-    password: Mapped[str] = mapped_column(nullable=False)
+    hashed_password: Mapped[str] = mapped_column(nullable=False)
     
-
-
 class Task(Base):
     __tablename__ = "tasks"
     id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True)

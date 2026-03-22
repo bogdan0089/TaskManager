@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from database.database import Base, async_engine
 from app.router_task import router_task
 from app.router_user import router_user
+from app.router_auth import router_auth
 from sqlalchemy.exc import OperationalError
 import asyncio
 app = FastAPI()
@@ -15,7 +16,7 @@ async def root():
 
 app.include_router(router_task)
 app.include_router(router_user)
-
+app.include_router(router_auth)
 
 
 async def wait_for_db(engine, retries=10, delay=2):

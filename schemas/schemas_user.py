@@ -7,7 +7,7 @@ class CreateUser(BaseModel):
     name: str
     email: str
     role: UserRole
-
+    password: str
 
 class ResponseUser(CreateUser):
     id: int
@@ -21,6 +21,6 @@ class UserUpdate(BaseModel):
     email: Optional[str]
     role: Optional[UserRole]
 
-
-
-
+class UserLogin(BaseModel):
+    email: str
+    password: str
