@@ -8,12 +8,14 @@
 
 - Python 3.11  
 - FastAPI  
-- SQLAlchemy (async)  
+- SQLAlchemy ORM (async)  
 - PostgreSQL  
 - Docker / Docker Compose  
-- JWT authentication  
-- Pydantic schemas  
-
+- JWT 
+- Pydantic schemas
+- Alembic
+- Clean code
+- Unit of Work pattern
 ---
 
 ## Running the Project
