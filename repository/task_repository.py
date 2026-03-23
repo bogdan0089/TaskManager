@@ -34,8 +34,8 @@ class TaskRepository:
         return task
 
     async def task_delete(self, task: Task):
-        task = await self.session.delete(task)
-        return task
+        await self.session.delete(task)
+        await self.session.flush()
 
     async def all_tasks(self, limit: int, offset: int):
         task = await self.session.execute(

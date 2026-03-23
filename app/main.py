@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from database.database import Base, async_engine
+from database.database import async_engine
 from app.router_task import router_task
 from app.router_user import router_user
 from app.router_auth import router_auth
@@ -34,5 +34,3 @@ async def wait_for_db(engine, retries=10, delay=2):
 @app.on_event("startup")
 async def startup():
     await wait_for_db(async_engine)
-    async with async_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)

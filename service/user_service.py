@@ -8,7 +8,6 @@ from core.exceptions import (
     UserNotFoundError,
     UsersNotFoundError,
     UserUpdateError,
-    UserDeleteError,
     InvalidRoleUser,
     InsufficientPermissionsError,
     TasksNotFoundError
@@ -27,7 +26,7 @@ class ServiceUser:
             user = await uow.user.create_user(
                 name=data.name,
                 email=data.email,
-                roel=data.role,
+                role=data.role,
                 hashed_password=hashed
             )
             return user
@@ -105,10 +104,8 @@ class ServiceUser:
                     required_role="Only admin",
                     user_role=current_user.role.value
                 )
-            user_delete = await uow.user.delete_user(user_id)
-            if user_delete is None:
-                raise UserDeleteError(reason="Failed to delete.")
-            return user_delete
+            await uow.user.delete_user(user)
+            return {"message": f"User {user_id} deleted."}
         
     @staticmethod
     async def user_tasks(user_id: int, current_user: User) -> int:

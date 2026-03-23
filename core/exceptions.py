@@ -68,37 +68,32 @@ class InvalidRoleUser(BaseAppExeption):
         self.actual_role=actual_role
 
 class UserUpdateError(BaseAppExeption):
-    def __init__(self, user_id: int, reason = "Error Update"):
-        super().__init__(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Error update user: {user_id} - {reason}"
-        )
+    def __init__(self, reason="Error Update", user_id: int = None):
+        detail = f"Error update user: {user_id} - {reason}" if user_id else f"Error update: {reason}"
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
         self.user_id=user_id
         self.reason=reason
 
 class TaskUpdateError(BaseAppExeption):
-    def __init__(self, task_id: int, reason = "Error Update"):
-        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error update task: {task_id} - {reason}")
+    def __init__(self, reason="Error Update", task_id: int = None):
+        detail = f"Error update task: {task_id} - {reason}" if task_id else f"Error update task: {reason}"
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
         self.task_id=task_id
         self.reason=reason
 
 class UserDeleteError(BaseAppExeption):
-    def __init__(self, user_id: int, reason="Error Delete"):
-        super().__init__(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Error delete user_id: {user_id} - {reason}"
-        )
+    def __init__(self, reason="Error Delete", user_id: int = None):
+        detail = f"Error delete user: {user_id} - {reason}" if user_id else f"Error delete: {reason}"
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
         self.user_id=user_id
         self.reason=reason
 
 class TaskDeleteError(BaseAppExeption):
-    def __init__(self, task_id: int, reason="Error delete."):
-        super().__init__(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Error delet task_id: {task_id} - {reason}"
-        )
+    def __init__(self, reason="Error delete.", task_id: int = None):
+        detail = f"Error delete task: {task_id} - {reason}" if task_id else f"Error delete task: {reason}"
+        super().__init__(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
         self.task_id=task_id
-        self.reason = reason 
+        self.reason = reason
 
 class TaskNotFound(BaseAppExeption):
     def __init__(self, user_id: int):

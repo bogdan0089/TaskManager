@@ -32,9 +32,9 @@ class UserRepository:
         )
         return stmt.scalars().first()
 
-    async def delete_user(self, user: User) -> User:
-        user = await self.session.delete(user)
-        return user
+    async def delete_user(self, user: User):
+        await self.session.delete(user)
+        await self.session.flush()
 
     async def update_user(self, user: User, data: UserUpdate) -> User:
         if data.name is not None:

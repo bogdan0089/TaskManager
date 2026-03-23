@@ -5,6 +5,9 @@ from sqlalchemy.ext.asyncio import create_async_engine
 import asyncio
 import os
 import sys
+from dotenv import load_dotenv
+
+load_dotenv()
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -19,6 +22,7 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
+context.config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 def run_migrations_offline():
     context.configure(

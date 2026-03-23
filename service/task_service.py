@@ -1,4 +1,4 @@
-from fastapi import HTTPException, status
+
 from database.unit_of_work import UnitOfWork
 from schemas.schemas_task import CreateTask, TaskUpdate
 from models.models import Task, User
@@ -6,7 +6,6 @@ from core.enum import TaskStatus, UserRole
 from core.exceptions import (
     TasksNotFoundError,
     TaskUpdateError,
-    TaskDeleteError,
     TaskNotFound,
     TaskAlreadyError,
     UserNotFoundError,
@@ -66,7 +65,7 @@ class ServiceTask:
             }
 
     @staticmethod
-    async def update_task(task_id: int, task: Task, data: TaskUpdate, current_user: User) -> Task:
+    async def update_task(task_id: int, data: TaskUpdate, current_user: User) -> Task:
         async with UnitOfWork() as uow:
             task = await uow.task.get_task(task_id)
             if task is None:
@@ -92,13 +91,11 @@ class ServiceTask:
                     required_role="Only admin",
                     user_role=current_user.role.value
                 )
-            task = await uow.task.task_delete(task_id)
-            if task is None:
-                raise TaskDeleteError(reason="Failed to delete.")
-            return task
+            await uow.task.task_delete(task)
+            return {"message": f"Task {task_id} deleted."}
 
     @staticmethod
-    async def all_tasks(curent_user: User, limit: int=10, offset: int=10) -> list[Task]:
+    async def all_tasks(curent_user: User, limit: int=10, offset: int=0) -> list[Task]:
         async with UnitOfWork() as uow:
             tasks = await uow.task.all_tasks(limit=limit, offset=offset)
             if tasks is None:
@@ -115,15 +112,13 @@ class ServiceTask:
         async with UnitOfWork() as uow:
             task = await uow.task.get_task(task_id)
             if not task:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found.")
-            change_status = await uow.task.change_status(data)
-            if not change_status:
-                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="403")
+                raise TaskNotFound(task_id)
             if task.user_id != current_user.id and current_user.role != UserRole.admin:
                 raise InsufficientPermissionsError(
                     required_role="Admin or owner",
                     user_role=current_user.role.value
                 )
+            change_status = await uow.task.change_status(task, data)
             return change_status
 
     @staticmethod

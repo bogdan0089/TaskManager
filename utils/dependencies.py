@@ -5,7 +5,7 @@ from service.auth_service import AuthService
 from core.exceptions import UserNotFoundError
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/user_login")
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     user_id = AuthService.decode_token(token)
