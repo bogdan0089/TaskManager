@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from schemas.schemas_auth import TokenResponse
-from schemas.schemas_user import CreateUser, UserLogin, ResponseUser
+from schemas.schemas_auth import TokenResponse, RefreshRequest
+from schemas.schemas_user import CreateUser, ResponseUser
 from utils.dependencies import get_current_user
 from models.models import User
 from service.auth_service import AuthService
@@ -20,3 +20,7 @@ async def user_login(data: OAuth2PasswordRequestForm = Depends()):
 @router_auth.get("/me", response_model=TokenResponse)
 async def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+@router_auth.post("/refresh")
+async def refresh_token(data: RefreshRequest):
+    return await AuthService.refresh_token(data.refresh_token)

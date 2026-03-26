@@ -8,6 +8,7 @@ class Settings:
     SECRET_KEY: str = os.getenv("SECRET_KEY")
     ALGORITHM: str = "HS256"
     ACCES_TOKEN_EXPIRE_MINUTES = 60
+    DAYS = 7
 
 settings = Settings()
 
