@@ -5,6 +5,7 @@ from service.user_service import ServiceUser
 from core.enum import UserRole
 from utils.dependencies import get_current_user
 
+
 router_user = APIRouter(prefix="/user")
 
 
@@ -23,10 +24,8 @@ async def get_user(user_id: int, current_user=Depends(get_current_user)):
 
 @router_user.get("/{user_id}/status", response_model=ResponseUser)
 async def check_status_user(user_id: int, data: UserRole, current_user=Depends(get_current_user)):
-    user = await ServiceUser.check_role_user(user_id, data.admin, current_user)
-    return {
-        "message": f"Hello Admin:{user.name}!"
-    }
+    user = await ServiceUser.check_role_user(user_id, data, current_user)
+    return user
 
 @router_user.patch("/{user_id}/patch", response_model=ResponseUser)
 async def update_user(user_id: int, data: UserUpdate, current_user=Depends(get_current_user)):

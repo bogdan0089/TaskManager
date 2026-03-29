@@ -4,6 +4,7 @@ from sqlalchemy import select, func
 from schemas.schemas_user import UserUpdate
 from core.enum import UserRole
 
+
 class UserRepository:
     def __init__(self, session: AsyncSession):
         self.session = session

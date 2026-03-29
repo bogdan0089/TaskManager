@@ -18,7 +18,6 @@ app.include_router(router_task)
 app.include_router(router_user)
 app.include_router(router_auth)
 
-
 async def wait_for_db(engine, retries=10, delay=2):
     for i in range(retries):
         try:
@@ -28,7 +27,6 @@ async def wait_for_db(engine, retries=10, delay=2):
             print(f"DB not ready, retry {i+1}/{retries}")
             await asyncio.sleep(delay)
     raise RuntimeError("Cannot connect to the database")
-
 
 
 @app.on_event("startup")

@@ -15,6 +15,7 @@ from core.exceptions import (
 
 class ServiceTask:
 
+
     @staticmethod
     async def create_task(data: CreateTask, user_id: int) -> Task:
         async with UnitOfWork() as uow:
@@ -40,14 +41,14 @@ class ServiceTask:
     @staticmethod
     async def create_task_for_user(user_id: int, data: CreateTask, current_user: User) -> dict:
         async with UnitOfWork() as uow:
-            user = await uow.user.get_user(user_id)
-            if user is None:
-                raise UserNotFoundError(user_id)
             if current_user.role != UserRole.admin:
                 raise InsufficientPermissionsError(
                     required_role="Only Admin",
                     user_role=current_user.role.value
                 )
+            user = await uow.user.get_user(user_id)
+            if user is None:
+                raise UserNotFoundError(user_id)
             task = await uow.task.create_task(data, user_id)
             if task is None:
                 raise TaskUpdateError(reason="Failed to create task.")
@@ -79,32 +80,32 @@ class ServiceTask:
             if update_task is None:
                 raise TaskUpdateError(reason="Failed to update.")
             return update_task
-            
+        
     @staticmethod
     async def delete_task(task_id: int, current_user: User):
         async with UnitOfWork() as uow:
-            task = await uow.task.get_task(task_id)
-            if task is None:
-                raise TaskNotFound(task_id)
             if current_user.role != UserRole.admin:
                 raise InsufficientPermissionsError(
                     required_role="Only admin",
                     user_role=current_user.role.value
                 )
+            task = await uow.task.get_task(task_id)
+            if task is None:
+                raise TaskNotFound(task_id)
             await uow.task.task_delete(task)
             return {"message": f"Task {task_id} deleted."}
 
     @staticmethod
     async def all_tasks(curent_user: User, limit: int=10, offset: int=0) -> list[Task]:
         async with UnitOfWork() as uow:
-            tasks = await uow.task.all_tasks(limit=limit, offset=offset)
-            if tasks is None:
-                raise TasksNotFoundError()
             if curent_user.role != UserRole.admin:
                 raise InsufficientPermissionsError(
                     required_role="Only admin",
                     user_role=curent_user.role.value
                 )
+            tasks = await uow.task.all_tasks(limit=limit, offset=offset)
+            if not tasks:
+                raise TasksNotFoundError()
             return tasks
         
     @staticmethod
@@ -124,21 +125,60 @@ class ServiceTask:
     @staticmethod
     async def get_task_status(status: TaskStatus, current_user: User) -> list[Task]:
         async with UnitOfWork() as uow:
-            status = await uow.task.get_task_status(status)
             if current_user.role != UserRole.admin:
                 raise InsufficientPermissionsError(
                     required_role="Only admin",
                     user_role=current_user.role.value
                 )
-            return status
+            tasks = await uow.task.get_task_status(status)
+            return tasks
         
     @staticmethod
     async def tasks_stats(current_user: User) -> dict[str, int]:
         async with UnitOfWork() as uow:
-            task = await uow.task.get_task_stats()
             if current_user.role != UserRole.admin:
                 raise InsufficientPermissionsError(
                     required_role="Only admin",
                     user_role=current_user.role.value
                 )
+            task = await uow.task.get_task_stats()
             return task
+        
+    @staticmethod
+    async def get_tasks_by_user_id(user_id: int) -> list[Task]:
+        async with UnitOfWork() as uow:
+            tasks = await uow.task.get_tasks_by_user_id(user_id)
+            if not tasks:
+                raise TasksNotFoundError()
+            return tasks
+
+    @staticmethod
+    async def get_my_stats(current_user: User) -> dict[str, int]:
+        async with UnitOfWork() as uow:
+            result = await uow.task.get_stats_by_user_id(current_user.id)
+            return result
+
+    @staticmethod
+    async def get_task_for_admin(user_id: int, current_user: User) -> list[Task]:
+        async with UnitOfWork() as uow:
+            if current_user.role != UserRole.admin:
+                raise InsufficientPermissionsError(
+                    required_role="Only admin",
+                    user_role=current_user.role.value
+                )
+            tasks = await uow.task.get_tasks_by_user_id(user_id)
+            if not tasks:
+                raise TasksNotFoundError()
+            return tasks
+            
+    @staticmethod
+    async def search_task_by_user_id(current_user: User, title: str):
+        async with UnitOfWork() as uow:
+            if current_user.role == UserRole.admin:
+                tasks = await uow.task.search_task(title)
+            else:
+                tasks = await uow.task.search_tasks_by_user_id(title, current_user.id)
+            if not tasks:
+                raise TasksNotFoundError()
+            return tasks
+

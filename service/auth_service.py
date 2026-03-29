@@ -4,12 +4,15 @@ from database.unit_of_work import UnitOfWork
 from core.exceptions import UserNotFoundError, UserAlreadyError, UserUpdateError
 from utils.hash import hash_password, verify_password
 from schemas.schemas_user import CreateUser
-from schemas.schemas_auth import TokenResponse
+from schemas.schemas_auth import TokenResponse, ChangePassword
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Depends
+from models.models import User
 import jwt
 
+
 class AuthService:
+
 
     def create_access_token(user_id: int):
         payload = {
@@ -83,6 +86,21 @@ class AuthService:
         new_access = AuthService.create_access_token(user_id)
         return {"access_token": new_access, "token_type": "bearer"}
     
+    @staticmethod
+    async def change_password(current_user: User, data: ChangePassword):
+        if not verify_password(data.old_password, current_user.hashed_password):
+            raise UserUpdateError("Failed old password!")
+        new_hashed = hash_password(data.new_password)
+        async with UnitOfWork() as uow:
+            user = await uow.user.get_user(current_user.id)
+            if not user:
+                raise UserNotFoundError(current_user.id)
+            user.hashed_password = new_hashed
+
+            return {"message": "Password changed"}
+        
+
+        
 
 
                 

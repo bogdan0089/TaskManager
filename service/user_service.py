@@ -1,4 +1,4 @@
-from models.models import User
+from models.models import User, Task
 from schemas.schemas_user import CreateUser, UserUpdate
 from database.unit_of_work import UnitOfWork
 from utils.hash import hash_password
@@ -108,7 +108,7 @@ class ServiceUser:
             return {"message": f"User {user_id} deleted."}
         
     @staticmethod
-    async def user_tasks(user_id: int, current_user: User) -> int:
+    async def user_tasks(user_id: int, current_user: User) -> list[Task]:
         async with UnitOfWork() as uow:
             user = await uow.user.get_user(user_id)
             if user is None:

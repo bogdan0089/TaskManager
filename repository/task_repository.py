@@ -42,6 +42,13 @@ class TaskRepository:
             select(Task).limit(limit).offset(offset)
         )
         return task.scalars().all()
+
+    async def get_tasks_by_user_id(self, user_id: int) -> list[Task]:
+        tasks = await self.session.execute(
+            select(Task)
+            .where(Task.user_id == user_id)
+        )
+        return tasks.scalars().all()
     
     async def change_status(self, task: Task, data: TaskStatus):
         task.status = data
@@ -70,4 +77,27 @@ class TaskRepository:
         )
         return result.scalars().first()
     
-    
+    async def get_stats_by_user_id(self, user_id: int) -> dict[str, int]:
+        result = await self.session.execute(
+            select(Task.status, func.count(Task.id).label("count"))
+            .where(Task.user_id == user_id)
+            .group_by(Task.status)
+        )
+        rows = result.all()
+        return {
+            status: count for status, count in rows
+        }
+
+    async def search_task(self, title: str) -> list[Task]:
+        result = await self.session.execute(
+            select(Task)
+            .where(Task.title.ilike(f"%{title}%"))
+        )
+        return result.scalars().all()
+
+    async def search_tasks_by_user_id(self, title: str, user_id: int) -> list[Task]:
+        result = await self.session.execute(
+            select(Task)
+            .where(Task.title.ilike(f"%{title}%"), Task.user_id == user_id)
+        )
+        return result.scalars().all()

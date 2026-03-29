@@ -9,9 +9,11 @@ class CreateUser(BaseModel):
     role: UserRole
     password: str
 
-class ResponseUser(CreateUser):
+class ResponseUser(BaseModel):
+    name: str
+    email: str
+    role: str
     id: int
-
     model_config = {
         "from_attributes": True
     }

@@ -16,6 +16,7 @@
 - Alembic
 - Clean code
 - Unit of Work pattern
+- Pytest
 ---
 
 ## Running the Project
